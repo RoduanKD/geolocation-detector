@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Geo Location Detector</title>
+</head>
+<body>
+    <h1>Geo Location Detector</h1>
+    <p>Welcome Bro! please give me permissions to access your current location and store in our DB</p>
+    <form>
+        <label>
+        <b>User ID</b>
+        <input name="user_id" type="number" value="5" placeholder="User Id">
+    </label>
+        <label>
+            <b>Case ID</b>
+            <input name="case_id" type="number" value="4" placeholder="Case Id">
+        </label>
+        <button type="submit">Send My Location</button>
+    </form>
+
+    <script>
+        // Function to get user's geolocation
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(sendLocation, handleLocationError);
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        // Callback function to handle successful retrieval of geolocation
+        function sendLocation(position) {
+            const form = {
+                lat: position.coords.latitude,
+                lon: position.coords.longitude,
+                user_id: document.querySelector('input[name=user_id]').value * 1,
+                case_id: document.querySelector('input[name=case_id]').value * 1,
+            };
+
+            // Sending the data to the server using fetch
+            fetch('/api/locations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(form),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Location data sent successfully:', data);
+                alert('Location data sent successfully!')
+            })
+            .catch((error) => {
+                console.error('Error sending location data:', error);
+                alert('Error check the console')
+            });
+        }
+
+        // Callback function to handle geolocation errors
+        function handleLocationError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        function submit(e) {
+            e.preventDefault()
+            getUserLocation()
+        }
+        document.querySelector('form').addEventListener('submit', submit, true)
+    </script>
+</body>
+</html>
